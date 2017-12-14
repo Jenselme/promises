@@ -48,4 +48,54 @@ describe('chain', () => {
             resolveCb()
         })
     })
+
+    describe('with promise', () => {
+        it('should call fulfill callback if previous promise returned fulfilled promise', done => {
+            const promise = PromisePlus.resolve()
+            promise
+                .then(() => {
+                    return PromisePlus.resolve('a value')
+                })
+                .then(value => {
+                    assert.equal(value, 'a value')
+                    done()
+                })
+        })
+
+        it('should call rejection callback if previous promise returned rejected promise', done => {
+            const promise = PromisePlus.resolve()
+            promise
+                .then(() => {
+                    return PromisePlus.reject('a value')
+                })
+                .then(null, value => {
+                    assert.equal(value, 'a value')
+                    done()
+                })
+        })
+
+        it('should call fulfill callback if previous promise returned fulfilled promise', done => {
+            const promise = PromisePlus.reject()
+            promise
+                .then(null, () => {
+                    return PromisePlus.resolve('a value')
+                })
+                .then(value => {
+                    assert.equal(value, 'a value')
+                    done()
+                })
+        })
+
+        it('should call rejection callback if previous promise returned rejected promise', done => {
+            const promise = PromisePlus.reject()
+            promise
+                .then(null, () => {
+                    return PromisePlus.reject('a value')
+                })
+                .then(null, value => {
+                    assert.equal(value, 'a value')
+                    done()
+                })
+        })
+    })
 })

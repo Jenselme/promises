@@ -74,7 +74,12 @@ class PromisePlus {
             return
         }
 
-        this._deferred.resolve(value)
+        // If value is a thenable, we need to unwrap its value before resolving our deferred.
+        if (value && value.then instanceof Function) {
+            value.then(this._deferred.resolve, this._deferred.reject)
+        } else {
+            this._deferred.resolve(value)
+        }
     }
 
     _registerCallbacks (onFulfilled, onRejected) {
