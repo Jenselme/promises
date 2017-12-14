@@ -6,6 +6,8 @@ class PromisePlus {
         this._onFulfilledCallbacks = []
         this._onRejectedCallbacks = []
         this._value = undefined
+        // This will hold the deferred we return with the `then` method.
+        this._deferred = undefined
 
         try {
             executor(this._resolve.bind(this), this._reject.bind(this))
@@ -15,6 +17,8 @@ class PromisePlus {
     }
 
     then (onFulfilled, onRejected) {
+        this._createDeferred()
+
         switch (this._state) {
             case states.pending:
                 this._registerCallbacks(onFulfilled, onRejected)
@@ -29,6 +33,22 @@ class PromisePlus {
                 // Note: this should never happen
                 throw new Error('Promise is in an unknown state')
         }
+
+        return this._deferred.promise
+    }
+
+    _createDeferred () {
+        // The deferred may have been created with a previous call to `then`.
+        // Don't create it again.
+        if (this._deferred) {
+            return
+        }
+
+        this._deferred = {}
+        this._deferred.promise = new PromisePlus((resolve, reject) => {
+            this._deferred.resolve = resolve
+            this._deferred.reject = reject
+        })
     }
 
     _executeCallback (callback) {
@@ -36,7 +56,17 @@ class PromisePlus {
             return
         }
 
-        callback(this._value)
+        const deferredValue = callback(this._value)
+        // Resolve the "then" defered to pass values down the chain.
+        this._resolveDeferred(deferredValue)
+    }
+
+    _resolveDeferred (value) {
+        if (!this._deferred || this._deferred.promise.state !== states.pending) {
+            return
+        }
+
+        this._deferred.resolve(value)
     }
 
     _registerCallbacks (onFulfilled, onRejected) {
