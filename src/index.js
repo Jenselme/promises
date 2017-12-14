@@ -5,6 +5,7 @@ class PromisePlus {
         this._state = states.pending
         this._onFulfilledCallbacks = []
         this._onRejectedCallbacks = []
+        this._value = undefined
         executor(this._resolve.bind(this), this._reject.bind(this))
     }
 
@@ -30,7 +31,7 @@ class PromisePlus {
             return
         }
 
-        callback()
+        callback(this._value)
     }
 
     _registerCallbacks (onFulfilled, onRejected) {
@@ -46,6 +47,7 @@ class PromisePlus {
         }
 
         this._state = states.fulfilled
+        this._value = value
         this._onFulfilledCallbacks.forEach(callback => {
             this._executeCallback(callback)
         })
@@ -59,6 +61,7 @@ class PromisePlus {
         }
 
         this._state = states.rejected
+        this._value = value
         this._onRejectedCallbacks.forEach(callback => {
             this._executeCallback(callback)
         })

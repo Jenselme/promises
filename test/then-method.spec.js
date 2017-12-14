@@ -89,4 +89,44 @@ describe('then method', () => {
 
         promise.then(null, done)
     })
+
+    describe('pass value to callbacks', () => {
+        it('should pass resolution value to fulfill callback', done => {
+            const promise = new PromisePlus(resolve => resolve('a value'))
+            promise.then(value => {
+                assert.equal(value, 'a value')
+                done()
+            })
+        })
+
+        it('should pass rejection value to rejection callback', done => {
+            const promise = new PromisePlus((resolve, reject) => reject('a value'))
+            promise.then(null, value => {
+                assert.equal(value, 'a value')
+                done()
+            })
+        })
+
+        it('should pass value to fulfill cb when cb registered before resolution', done => {
+            let resolveCb
+            const promise = new PromisePlus(resolve => (resolveCb = resolve))
+            promise.then(value => {
+                assert.equal(value, 'a value')
+                done()
+            })
+
+            resolveCb('a value')
+        })
+
+        it('should pass value to rejection cb when cb registered before resolution', done => {
+            let rejectCb
+            const promise = new PromisePlus((resolve, reject) => (rejectCb = reject))
+            promise.then(null, value => {
+                assert.equal(value, 'a value')
+                done()
+            })
+
+            rejectCb('a value')
+        })
+    })
 })
