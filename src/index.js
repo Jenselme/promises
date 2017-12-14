@@ -6,7 +6,12 @@ class PromisePlus {
         this._onFulfilledCallbacks = []
         this._onRejectedCallbacks = []
         this._value = undefined
-        executor(this._resolve.bind(this), this._reject.bind(this))
+
+        try {
+            executor(this._resolve.bind(this), this._reject.bind(this))
+        } catch (e) {
+            this._reject(e)
+        }
     }
 
     then (onFulfilled, onRejected) {

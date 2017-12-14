@@ -129,4 +129,17 @@ describe('then method', () => {
             rejectCb('a value')
         })
     })
+
+    describe('error management', () => {
+        it('should reject promise with an error when exceptions occurs in executor', done => {
+            const promise = new PromisePlus(resolve => {
+                throw new Error('It failed!')
+            })
+            promise.then(null, error => {
+                assert(error instanceof Error)
+                assert.equal(error.message, 'It failed!')
+                done()
+            })
+        })
+    })
 })
