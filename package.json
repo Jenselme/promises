@@ -1,0 +1,30 @@
+{
+  "name": "promises",
+  "version": "1.0.0",
+  "description": "An implementation of Promises/A+ to see how it can be done",
+  "scripts": {
+    "lint": "eslint src test",
+    "test": "mocha --require ./test/setup"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jenselme/promises.git"
+  },
+  "author": "Julien Enselme <jenselme@jujens.eu>",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/Jenselme/promises/issues"
+  },
+  "homepage": "https://github.com/Jenselme/promises#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "assert": "^1.4.1",
+    "eslint": "^4.13.1",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "mocha": "^4.0.1"
+  }
+}
