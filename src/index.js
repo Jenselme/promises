@@ -1,6 +1,14 @@
 const states = require('./states')
 
 class PromisePlus {
+    static resolve (value) {
+        return new PromisePlus(resolve => resolve(value))
+    }
+
+    static reject (value) {
+        return new PromisePlus((resolve, reject) => reject(value))
+    }
+
     constructor (executor) {
         this._state = states.pending
         this._onFulfilledCallbacks = []

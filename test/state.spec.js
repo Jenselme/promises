@@ -44,4 +44,16 @@ describe('State', () => {
 
         assert.equal(promise.state, states.rejected)
     })
+
+    it('should create fulfilled promise with PromisePlus.resolve', () => {
+        const promise = PromisePlus.resolve()
+
+        assert.equal(promise.state, states.fulfilled)
+    })
+
+    it('should create rejected promise with PromisePlus.reject', () => {
+        const promise = PromisePlus.reject()
+
+        assert.equal(promise.state, states.rejected)
+    })
 })
