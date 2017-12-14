@@ -7,10 +7,22 @@ class PromisePlus {
     }
 
     _resolve (value) {
+        // The promise is not pending any more, we need to ignore this call.
+        // See https://promisesaplus.com/#point-59
+        if (this._state !== states.pending) {
+            return
+        }
+
         this._state = states.fulfilled
     }
 
     _reject (value) {
+        // The promise is not pending any more, we need to ignore this call.
+        // See https://promisesaplus.com/#point-59
+        if (this._state !== states.pending) {
+            return
+        }
+
         this._state = states.rejected
     }
 

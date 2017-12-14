@@ -16,4 +16,32 @@ describe('State', () => {
         const promise = new PromisePlus((resolve, reject) => reject())
         assert.equal(promise.state, states.rejected)
     })
+
+    it('should not change state once fulfilled', () => {
+        let resolveCb
+        let rejectCb
+        const promise = new PromisePlus((resolve, reject) => {
+            resolveCb = resolve
+            rejectCb = reject
+        })
+
+        resolveCb()
+        rejectCb()
+
+        assert.equal(promise.state, states.fulfilled)
+    })
+
+    it('should not change state once rejected', () => {
+        let resolveCb
+        let rejectCb
+        const promise = new PromisePlus((resolve, reject) => {
+            resolveCb = resolve
+            rejectCb = reject
+        })
+
+        rejectCb()
+        resolveCb()
+
+        assert.equal(promise.state, states.rejected)
+    })
 })
