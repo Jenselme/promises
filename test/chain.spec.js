@@ -122,4 +122,18 @@ describe('chain', () => {
                 })
         })
     })
+
+    describe('error management', () => {
+        it('should call rejection callback if an error occurred in the previous promise', done => {
+            PromisePlus.resolve()
+                .then(() => {
+                    throw new Error('It failed!')
+                })
+                .then(null, error => {
+                    assert(error instanceof Error)
+                    assert.equal(error.message, 'It failed!')
+                    done()
+                })
+        })
+    })
 })

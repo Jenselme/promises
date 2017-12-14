@@ -80,8 +80,14 @@ class PromisePlus {
         }
 
         setTimeout(() => {
-            const deferredValue = callback(this._value)
-            // Resolve the "then" defered to pass values down the chain.
+            let deferredValue
+            try {
+                deferredValue = callback(this._value)
+            } catch (error) {
+                deferredValue = PromisePlus.reject(error)
+            }
+
+            // Resolve the "then" deferred to pass values down the chain.
             this._resolveDeferred(deferredValue)
         })
     }
