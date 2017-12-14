@@ -5,6 +5,7 @@
   "scripts": {
     "lint": "eslint src test",
     "test": "mocha --require ./test/setup",
+    "compliance": "promises-aplus-tests test/adapter",
     "tdd": "mocha --require ./test/setup --watch"
   },
   "repository": {
@@ -26,6 +27,7 @@
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
-    "mocha": "^4.0.1"
+    "mocha": "^4.0.1",
+    "promises-aplus-tests": "^2.1.2"
   }
 }
