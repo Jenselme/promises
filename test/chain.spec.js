@@ -98,4 +98,28 @@ describe('chain', () => {
                 })
         })
     })
+
+    describe('with missing callbacks', () => {
+        it('should call fulfill callback if last promise was fulfilled', done => {
+            const promise = PromisePlus.resolve('a value')
+            promise
+                .then(() => 'a value')
+                .then(null)
+                .then(value => {
+                    assert.equal(value, 'a value')
+                    done()
+                })
+        })
+
+        it('should call rejection callback if last promise was rejected', done => {
+            const promise = PromisePlus.resolve('a value')
+            promise
+                .then(() => PromisePlus.reject('a value'))
+                .then(null, null)
+                .then(null, value => {
+                    assert.equal(value, 'a value')
+                    done()
+                })
+        })
+    })
 })

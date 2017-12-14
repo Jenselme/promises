@@ -1,3 +1,4 @@
+const callbackKinds = require('./callback-kinds')
 const states = require('./states')
 
 class PromisePlus {
@@ -32,10 +33,10 @@ class PromisePlus {
                 this._registerCallbacks(onFulfilled, onRejected)
                 break
             case states.fulfilled:
-                this._executeCallback(onFulfilled)
+                this._executeCallback(onFulfilled, callbackKinds.resolve)
                 break
             case states.rejected:
-                this._executeCallback(onRejected)
+                this._executeCallback(onRejected, callbackKinds.reject)
                 break
             default:
                 // Note: this should never happen
@@ -59,9 +60,23 @@ class PromisePlus {
         })
     }
 
-    _executeCallback (callback) {
+    _executeCallback (callback, kind) {
         if (!(callback instanceof Function)) {
-            return
+            // We need to pass the value the current promise in the chain got
+            // to the next one in the chain.
+            // We also need to respect the callback (resolve or reject) that was called.
+            // To do this, we create a callback that return the proper promise.
+            switch (kind) {
+                case callbackKinds.resolve:
+                    callback = value => PromisePlus.resolve(value)
+                    break
+                case callbackKinds.reject:
+                    callback = value => PromisePlus.reject(value)
+                    break
+                default:
+                    // This should never happen.
+                    throw new Error('Unsupported callback kind')
+            }
         }
 
         const deferredValue = callback(this._value)
@@ -97,7 +112,7 @@ class PromisePlus {
         this._state = states.fulfilled
         this._value = value
         this._onFulfilledCallbacks.forEach(callback => {
-            this._executeCallback(callback)
+            this._executeCallback(callback, callbackKinds.resolve)
         })
     }
 
@@ -111,7 +126,7 @@ class PromisePlus {
         this._state = states.rejected
         this._value = value
         this._onRejectedCallbacks.forEach(callback => {
-            this._executeCallback(callback)
+            this._executeCallback(callback, callbackKinds.reject)
         })
     }
 
