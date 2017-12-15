@@ -18,6 +18,10 @@ class PromisePlus {
         // This will hold the deferred we return with the `then` method.
         this._deferred = undefined
 
+        this._launchExecutor(executor)
+    }
+
+    _launchExecutor (executor) {
         try {
             executor(this._resolve.bind(this), this._reject.bind(this))
         } catch (e) {
