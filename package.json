@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "lint": "eslint src test",
-    "test": "mocha --require ./test/setup",
+    "test": "nyc mocha --require ./test/setup",
     "compliance": "promises-aplus-tests test/adapter",
     "tdd": "mocha --require ./test/setup --watch"
   },
@@ -29,6 +29,7 @@
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
     "mocha": "^4.0.1",
+    "nyc": "^11.3.0",
     "promises-aplus-tests": "^2.1.2"
   }
 }
