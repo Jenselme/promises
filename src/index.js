@@ -1,6 +1,13 @@
 const callbackKinds = require('./callback-kinds')
 const states = require('./states')
 
+/**
+ * Basic, not fully compliant Promise/A+ implementation.
+ *
+ * It takes as argument an executor function. This function will be passed a callback to
+ * resolve the promise and one to reject it. The promise will stay pending until one of
+ * theses callbacks is called.
+ */
 class PromisePlus {
     static resolve (value) {
         return new PromisePlus(resolve => resolve(value))
@@ -29,6 +36,13 @@ class PromisePlus {
         }
     }
 
+    /**
+     * Method used to chain promise.
+     *
+     * @param {Function} onFulfilled callback called if/when the previous promise is fulfilled.
+     * @param {Function} onRejected callback called if/when the previous promise is rejected.
+     * @return {PromisePlus} The promise to rely on for the rest of the chain.
+     */
     then (onFulfilled, onRejected) {
         this._createDeferred()
 
@@ -142,6 +156,12 @@ class PromisePlus {
         })
     }
 
+    /**
+     * Return the current state of the promise.
+     *
+     * This is mostly useful for debugging purposes.
+     * The returned state can be PENDING, FULFILLED or REJECTED.
+     */
     get state () {
         return this._state
     }
