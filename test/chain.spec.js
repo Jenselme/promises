@@ -111,10 +111,29 @@ describe('chain', () => {
                 })
         })
 
+        it('should call fulfill callback if last promise was already fulfilled', done => {
+            const promise = PromisePlus.resolve('a value')
+            promise
+                .then(null)
+                .then(value => {
+                    assert.equal(value, 'a value')
+                    done()
+                })
+        })
+
         it('should call rejection callback if last promise was rejected', done => {
             const promise = PromisePlus.resolve('a value')
             promise
                 .then(() => PromisePlus.reject('a value'))
+                .then(null, null)
+                .then(null, value => {
+                    assert.equal(value, 'a value')
+                    done()
+                })
+        })
+
+        it('should call rejection callback if last promise was already rejected', done => {
+            PromisePlus.reject('a value')
                 .then(null, null)
                 .then(null, value => {
                     assert.equal(value, 'a value')
