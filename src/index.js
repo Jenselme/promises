@@ -19,11 +19,10 @@ class PromisePlus {
 
     constructor (executor) {
         this._state = states.pending
-        this._onFulfilledCallbacks = []
-        this._onRejectedCallbacks = []
+        // List all the deferred created by the then method and
+        // the related onFulfilled/onRejected callbacks.
+        this._thenChainInfo = []
         this._value = undefined
-        // This will hold the deferred we return with the `then` method.
-        this._deferred = undefined
 
         this._launchExecutor(executor)
     }
@@ -44,41 +43,39 @@ class PromisePlus {
      * @return {PromisePlus} The promise to rely on for the rest of the chain.
      */
     then (onFulfilled, onRejected) {
-        this._createDeferred()
+        const deferred = this._createDeferred()
 
         switch (this._state) {
             case states.pending:
-                this._registerCallbacks(onFulfilled, onRejected)
+                this._registerDeferred(deferred, onFulfilled, onRejected)
                 break
             case states.fulfilled:
-                this._executeCallback(onFulfilled, callbackKinds.resolve)
+                this._processThenChain({onFulfilled, deferred}, callbackKinds.resolve)
                 break
             case states.rejected:
-                this._executeCallback(onRejected, callbackKinds.reject)
+                this._processThenChain({onRejected, deferred}, callbackKinds.reject)
                 break
             default:
                 // Note: this should never happen
                 throw new Error('Promise is in an unknown state')
         }
 
-        return this._deferred.promise
+        return deferred.promise
     }
 
     _createDeferred () {
-        // The deferred may have been created with a previous call to `then`.
-        // Don't create it again.
-        if (this._deferred) {
-            return
-        }
-
-        this._deferred = {}
-        this._deferred.promise = new PromisePlus((resolve, reject) => {
-            this._deferred.resolve = resolve
-            this._deferred.reject = reject
+        const deferred = {}
+        deferred.promise = new PromisePlus((resolve, reject) => {
+            deferred.resolve = resolve
+            deferred.reject = reject
         })
+
+        return deferred
     }
 
-    _executeCallback (callback, kind) {
+    _processThenChain ({onFulfilled, onRejected, deferred}, kind) {
+        let callback = this._selectCallback(onFulfilled, onRejected, kind)
+
         if (!(callback instanceof Function)) {
             // We need to pass the value the current promise in the chain got
             // to the next one in the chain.
@@ -106,26 +103,34 @@ class PromisePlus {
             }
 
             // Resolve the "then" deferred to pass values down the chain.
-            this._resolveDeferred(deferredValue)
+            this._resolveDeferred(deferred, deferredValue)
         })
     }
 
-    _resolveDeferred (value) {
-        if (!this._deferred || this._deferred.promise.state !== states.pending) {
+    _selectCallback (onFulfilled, onRejected, kind) {
+        switch (kind) {
+            case callbackKinds.resolve:
+                return onFulfilled
+            case callbackKinds.reject:
+                return onRejected
+        }
+    }
+
+    _resolveDeferred (deferred, value) {
+        if (deferred.promise.state !== states.pending) {
             return
         }
 
         // If value is a thenable, we need to unwrap its value before resolving our deferred.
         if (value && value.then instanceof Function) {
-            value.then(this._deferred.resolve, this._deferred.reject)
+            value.then(deferred.resolve, deferred.reject)
         } else {
-            this._deferred.resolve(value)
+            deferred.resolve(value)
         }
     }
 
-    _registerCallbacks (onFulfilled, onRejected) {
-        this._onFulfilledCallbacks.push(onFulfilled)
-        this._onRejectedCallbacks.push(onRejected)
+    _registerDeferred (deferred, onFulfilled, onRejected) {
+        this._thenChainInfo.push({onFulfilled, onRejected, deferred})
     }
 
     _resolve (value) {
@@ -137,9 +142,7 @@ class PromisePlus {
 
         this._state = states.fulfilled
         this._value = value
-        this._onFulfilledCallbacks.forEach(callback => {
-            this._executeCallback(callback, callbackKinds.resolve)
-        })
+        this._thenChainInfo.map(thenableInfo => this._processThenChain(thenableInfo, callbackKinds.resolve))
     }
 
     _reject (value) {
@@ -151,9 +154,7 @@ class PromisePlus {
 
         this._state = states.rejected
         this._value = value
-        this._onRejectedCallbacks.forEach(callback => {
-            this._executeCallback(callback, callbackKinds.reject)
-        })
+        this._thenChainInfo.map(thenableInfo => this._processThenChain(thenableInfo, callbackKinds.reject))
     }
 
     /**

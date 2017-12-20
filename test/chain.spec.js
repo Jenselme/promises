@@ -155,4 +155,66 @@ describe('chain', () => {
                 })
         })
     })
+
+    describe('multiple chains', () => {
+        it('should resolve each promise in the chain independently', done => {
+            let resolveCb
+            const promise = new PromisePlus(resolve => (resolveCb = resolve))
+            Promise.all([
+                promise.then(value => `${value} + value 1`),
+                promise.then(value => `${value} + value 2`)
+            ]).then(values => {
+                assert.equal(values.length, 2)
+                assert.equal(values[0], 'initial value + value 1')
+                assert.equal(values[1], 'initial value + value 2')
+                done()
+            })
+
+            resolveCb('initial value')
+        })
+
+        it('should resolve each promise registered after resolve in the chain independently', done => {
+            const promise = PromisePlus.resolve('initial value')
+
+            Promise.all([
+                promise.then(value => `${value} + value 1`),
+                promise.then(value => `${value} + value 2`)
+            ]).then(values => {
+                assert.equal(values.length, 2)
+                assert.equal(values[0], 'initial value + value 1')
+                assert.equal(values[1], 'initial value + value 2')
+                done()
+            })
+        })
+
+        it('should reject each promise in the chain independently', done => {
+            let rejectCb
+            const promise = new PromisePlus((resolve, reject) => (rejectCb = reject))
+            Promise.all([
+                promise.then(null, value => `${value} + value 1`),
+                promise.then(null, value => `${value} + value 2`)
+            ]).then(values => {
+                assert.equal(values.length, 2)
+                assert.equal(values[0], 'initial value + value 1')
+                assert.equal(values[1], 'initial value + value 2')
+                done()
+            })
+
+            rejectCb('initial value')
+        })
+
+        it('should resolve each promise registered after resolve in the chain independently', done => {
+            const promise = PromisePlus.reject('initial value')
+
+            Promise.all([
+                promise.then(null, value => `${value} + value 1`),
+                promise.then(null, value => `${value} + value 2`)
+            ]).then(values => {
+                assert.equal(values.length, 2)
+                assert.equal(values[0], 'initial value + value 1')
+                assert.equal(values[1], 'initial value + value 2')
+                done()
+            })
+        })
+    })
 })
