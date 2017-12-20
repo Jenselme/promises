@@ -57,7 +57,7 @@ class PromisePlus {
                 break
             default:
                 // Note: this should never happen
-                throw new Error('Promise is in an unknown state')
+                return PromisePlus.reject(new Error('Promise is in an unknown state'))
         }
 
         return deferred.promise
@@ -90,7 +90,7 @@ class PromisePlus {
                     break
                 default:
                     // This should never happen.
-                    throw new Error('Unsupported callback kind')
+                    callback = () => PromisePlus.reject(new Error('Unsupported callback kind'))
             }
         }
 
@@ -117,6 +117,9 @@ class PromisePlus {
                 return onFulfilled
             case callbackKinds.reject:
                 return onRejected
+            default:
+                // Note: this should never happen.
+                return () => onRejected(new Error('Unsupported callback kind'))
         }
     }
 
