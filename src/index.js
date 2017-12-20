@@ -94,6 +94,10 @@ class PromisePlus {
             }
         }
 
+        this._executeThenCallback(deferred, callback)
+    }
+
+    _executeThenCallback (deferred, callback) {
         setTimeout(() => {
             let deferredValue
             try {
