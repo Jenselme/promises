@@ -58,6 +58,15 @@ class PromisePlus {
     }
 
     /**
+     * Method used to catch errors in a promise chain.
+     *
+     * @param {Function} cb callback called if/when the chain is rejected.
+     */
+    catch (cb) {
+        return this.then(null, cb)
+    }
+
+    /**
      * Method used to chain promise.
      *
      * @param {Function} onFulfilled callback called if/when the previous promise is fulfilled.
