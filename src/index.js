@@ -31,6 +31,16 @@ class PromisePlus {
         return chain
     }
 
+    static map (array, fn) {
+        const promises = []
+
+        for (let value of array) {
+            promises.push(fn(value))
+        }
+
+        return PromisePlus.all(promises)
+    }
+
     static resolve (value) {
         return new PromisePlus(resolve => resolve(value))
     }
