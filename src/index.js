@@ -32,6 +32,10 @@ class PromisePlus {
     }
 
     static map (array, fn) {
+        if (array == null || !(Symbol.iterator in array)) {
+            return PromisePlus.reject(new Error(`TypeError: Cannot read property 'Symbol(Symbol.iterator)' of ${array}`))
+        }
+
         const promises = []
 
         for (let value of array) {

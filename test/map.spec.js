@@ -1,6 +1,15 @@
 const PromisePlus = require('../src/index')
 
 describe('map', () => {
+    it('should reject if non iterable argument is passed', done => {
+        PromisePlus.map(null, value => value)
+            .then(null, error => {
+                assert(error instanceof Error)
+                assert.equal(error.message, `TypeError: Cannot read property 'Symbol(Symbol.iterator)' of null`)
+                done()
+            })
+    })
+
     it('should support empty array', done => {
         PromisePlus.map([], value => value)
             .then(values => {
