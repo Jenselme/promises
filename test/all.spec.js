@@ -54,7 +54,6 @@ describe('all method', () => {
             'a string'
         ])
             .then(values => {
-                console.log(values)
                 assert(values instanceof Array)
                 assert.equal(values.length, 4)
                 assert.deepEqual(values, [10, null, 10, 'a string'])
