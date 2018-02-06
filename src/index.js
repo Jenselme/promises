@@ -41,6 +41,18 @@ class PromisePlus {
         return PromisePlus.all(promises)
     }
 
+    static race (promises) {
+        if (promises == null || !(Symbol.iterator in promises)) {
+            return PromisePlus.reject(new Error(`TypeError: Cannot read property 'Symbol(Symbol.iterator)' of ${promises}`))
+        }
+
+        return new PromisePlus((resolve, reject) => {
+            for (let promise of promises) {
+                promise.then(resolve, reject)
+            }
+        })
+    }
+
     static resolve (value) {
         return new PromisePlus(resolve => resolve(value))
     }
