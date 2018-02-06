@@ -9,6 +9,28 @@ const states = require('./states')
  * theses callbacks is called.
  */
 class PromisePlus {
+    static all (promises) {
+        if (promises == null || !(Symbol.iterator in promises)) {
+            return PromisePlus.reject(new Error(`TypeError: Cannot read property 'Symbol(Symbol.iterator)' of ${promises}`))
+        }
+
+        let chain = PromisePlus.resolve([])
+        for (let p of promises) {
+            if (!(p && p.then instanceof Function)) {
+                p = PromisePlus.resolve(p)
+            }
+
+            chain = chain.then(values => {
+                return p.then(value => {
+                    values.push(value)
+                    return values
+                })
+            })
+        }
+
+        return chain
+    }
+
     static resolve (value) {
         return new PromisePlus(resolve => resolve(value))
     }
